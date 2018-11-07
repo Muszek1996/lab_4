@@ -8,3 +8,8 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 add_executable(lab_4 main.c)
 add_executable(pub_sym_1 pub_sym_1.c)
 add_executable(pub_sym_2 pub_sym_2.c)
+set (sources pomiar_czasu/pomiar_czasu.h pomiar_czasu/pomiar_czasu.c)
+
+add_library( async_waiter ${sources} )
+
+TARGET_LINK_LIBRARIES(pub_sym_1 async_waiter)

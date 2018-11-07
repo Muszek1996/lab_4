@@ -3,6 +3,7 @@
 #include <time.h>
 #include<pthread.h>
 #include <unistd.h>
+#include "pomiar_czasu/pomiar_czasu.h"
 
 
 void * watek_klient (void * arg);
@@ -12,7 +13,7 @@ int l_kf,l_kr;
 pthread_mutex_t mutexKufle;
 pthread_mutex_t mutexKran;
 
-main(){
+void main(){
 
 
   pthread_t *tab_klient;
@@ -23,9 +24,9 @@ main(){
   pthread_mutex_init(&mutexKufle, NULL);
   pthread_mutex_init(&mutexKran, NULL);
 
-  printf("\nLiczba klientow: "); scanf("%d", &l_kl);
+  printf("Liczba klientow: "); scanf("%d", &l_kl);
 
-  printf("\nLiczba kufli: "); scanf("%d", &l_kf);
+  printf("Liczba kufli: "); scanf("%d", &l_kf);
 
   //printf("\nLiczba kranow: "); scanf("%d", &kran);
   l_kr = 1;
@@ -35,8 +36,10 @@ main(){
   for(i=0;i<l_kl;i++) tab_klient_id[i]=i;
 
 
-  printf("\nOtwieramy pub (simple)!\n");
-  printf("\nLiczba wolnych kufli %d\n", l_kf); 
+
+  inicjuj_czas();
+  printf("Otwieramy pub!\n");
+  printf("Liczba wolnych kufli %d\n", l_kf);
 
   for(i=0;i<l_kl;i++){
 
@@ -45,8 +48,8 @@ main(){
   for(i=0;i<l_kl;i++){
     pthread_join( tab_klient[i], NULL);
   }
-  printf("\nZamykamy pub!\n");
-
+  printf("Zamykamy pub!\n");
+  drukuj_czas();
 
 }
 
@@ -58,7 +61,7 @@ void * watek_klient (void * arg_wsk){
   int i, j, kufel, result;
   int ile_musze_wypic = 2;
 
-  printf("\nKlient %d, wchodzę do pubu\n", moj_id); 
+  printf("Klient %d, wchodze do pubu\n", moj_id);
     
   for(i=0; i<ile_musze_wypic; i++){
 
@@ -70,13 +73,13 @@ void * watek_klient (void * arg_wsk){
 
 
       if(l_kf>0){
-          --l_kf;
-          printf("\nKlient %d, pobieram kufel:%d \n", moj_id, l_kf);
+
+          printf("Klient %d, pobieram kufel nr:%d \n", moj_id, l_kf--);
           flag=1;
         }
       else{
-        printf("\nKlient %d,brak kf, czekam\n", moj_id);
-        usleep(10000);
+        printf("Klient %d,brak kufli, czekam\n", moj_id);
+        usleep(1000000);
       }
 
       pthread_mutex_unlock(&mutexKufle);
@@ -88,23 +91,23 @@ void * watek_klient (void * arg_wsk){
 
 
     pthread_mutex_lock(&mutexKran);
-    printf("\nKlient %d, nalewam z kranu mój kufel nr:%d z kranu : %d\n", moj_id, i+1, l_kr);
-    usleep(300);
+    printf("Klient %d, nalewam z kranu moj %d kufel \n", moj_id, i+1);
+    usleep(3000);
     pthread_mutex_unlock(&mutexKran);
 
 
-    printf("\nKlient %d, pije\n", moj_id); 
-    nanosleep((struct timespec[]){{0, 500000000L}}, NULL);
+    printf("Klient %d, pije\n", moj_id);
+    usleep(1000000);
 
 
     pthread_mutex_lock(&mutexKufle);
-    printf("\nKlient %d, odkladam kufel na stole: %d + 1 oddawany", moj_id, l_kf);
+    printf("Klient %d, odkladam kufel na stole teraz jest: %d + 1 oddawany\n", moj_id, l_kf);
     ++l_kf;
     pthread_mutex_unlock(&mutexKufle);
     
   }
 
-  printf("\nKlient %d, wychodzę z pubu\n", moj_id); 
+  printf("Klient %d, wychodze z pubu\n", moj_id);
     
   return(NULL);
 } 
