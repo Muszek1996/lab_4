@@ -104,6 +104,7 @@ void * watek_klient (void * arg_wsk){
     printf("Klient %d, odkladam kufel na stole teraz jest: %d + 1 oddawany\n", moj_id, l_kf);
     ++l_kf;
     pthread_mutex_unlock(&mutexKufle);
+
     
   }
 
